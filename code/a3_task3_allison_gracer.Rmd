@@ -28,18 +28,23 @@ library(here)
 ## Read in the data
 
 ```{r}
-urchins <- read_csv(here("data", "urchins.csv"))
+urchins <- read_csv(here("data", "urchins.csv")) %>% 
+clean_names()
 ```
 
 ## Data visualization
 
 ```{r}
-ggplot(data = urchins, aes(x = SIZE)) +
+ggplot(data = urchins, aes(x = size)) +
   geom_histogram(fill = "sienna3",
                  color = "sienna4",
                  bins = 10) +
-  facet_wrap(~ COMMON_NAME)
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-  labs(x = "urchin diameter (cm)")
+  facet_wrap(~ common_name) +
+  scale_x_continuous(limits = c(0, 14)) +
+  labs(x = "Urchin Diameter (cm)",
+       y = "Count of Urchins in Sample",
+       title = "Purple and Red Urchin Size(cm)") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 ```
 
