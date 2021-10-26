@@ -1,0 +1,42 @@
+---
+title: "Task 3 - Santa Barbara Urchins (Gracer)"
+author: "Allison Gracer"
+date: "10/25/2021"
+output: 
+  html_document: 
+    theme: spacelab
+---
+
+## Overview
+
+**Data Citation:** Reed, D. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+## Setup
+
+```{r}
+# Attach packages
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+## Read in the data
+
+```{r}
+urchins <- read_csv(here("data", "urchins.csv"))
+```
+
+##### For reference, the first 6 lines of data are shown below:
+
+```{r}
+# Return the first6 lines:
+head(urchins)
+```
+
