@@ -15,7 +15,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(tidyverse)
 library(here)
-library(janitor)
 ```
 
 ## Setup
@@ -24,7 +23,6 @@ library(janitor)
 # Attach packages
 library(tidyverse)
 library(here)
-library(janitor)
 ```
 
 ## Read in the data
@@ -33,10 +31,15 @@ library(janitor)
 urchins <- read_csv(here("data", "urchins.csv"))
 ```
 
-##### For reference, the first 6 lines of data are shown below:
+## Data visualization
 
 ```{r}
-# Return the first6 lines:
-head(urchins)
+ggplot(data = urchins, aes(x = SIZE)) +
+  geom_histogram(fill = "sienna3",
+                 color = "sienna4",
+                 bins = 10) +
+  facet_wrap(~ COMMON_NAME)
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  labs(x = "urchin diameter (cm)")
 ```
 
