@@ -15,6 +15,8 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(tidyverse)
 library(here)
+library(janitor)
+library(kableExtra)
 ```
 
 ## Setup
@@ -23,28 +25,58 @@ library(here)
 # Attach packages
 library(tidyverse)
 library(here)
+library(janitor)
+library(kableExtra)
 ```
 
 ## Read in the data
 
 ```{r}
-urchins <- read_csv(here("data", "urchins.csv")) %>% 
-clean_names()
+urchins <- read_csv(here("data", "urchins.csv")) %>% # read in data using here()
+  clean_names() # convert all column headers to lower snake case
 ```
 
 ## Data visualization
 
-```{r}
-ggplot(data = urchins, aes(x = size)) +
-  geom_histogram(fill = "sienna3",
+#### Size comparison of purple and red urchins (includes data from all sites and for both treatments)
+
+```{r fig.cap = "Figure 1. Comparing size of Purple and Red Urchins based on measurements of urchin diameter (cm), measured to the nearest 0.5 cm."}
+ggplot(data = urchins, aes(x = size)) + # create a ggplot using urchins data, with size on x axis
+  geom_histogram(fill = "sienna3", # specify plot type as histogram, and change graph colors and bin size
                  color = "sienna4",
                  bins = 10) +
-  facet_wrap(~ common_name) +
-  scale_x_continuous(limits = c(0, 14)) +
-  labs(x = "Urchin Diameter (cm)",
-       y = "Count of Urchins in Sample",
-       title = "Purple and Red Urchin Size(cm)") +
-  theme(plot.title = element_text(hjust = 0.5))
-
+  facet_wrap(~ common_name) + # facet data based on common_name
+  labs(x = "Urchin Diameter (cm)", # label x axis
+       y = "Count of Urchins in Sample", # label y axis
+       title = "Purple and Red Urchin Size(cm)") + # create a plot title
+  theme(plot.title = element_text(hjust = 0.5)) # center plot title
 ```
+
+## Descriptive statistics table
+
+#### Calculate mean, median, standard deviation, and sample size of urchin size (cm)
+
+```{r}
+urchins_stats <- urchins %>% # create a new data set called urchins_stats
+  group_by(common_name) %>% # grouped by species (common_name)
+  summarize(
+    mean = round(mean(size),2), # calculate mean, and round to 2 decimal places
+    median = median(size), # calculate median
+    sd = round(sd(size),2), # calculate standard deviation, and round to 2 decimal places
+    sample_size = n()) # calculate sample size
+```
+
+#### Finalized summary table of urchin size statistics
+
+```{r}
+kable(urchins_stats, # create simple table for rmarkdown with function kable()
+      col.names = c("Common Name", "Mean(cm)", "Median(cm)", "Standard Deviation (cm)", "Sample Size"), # specify column names
+      align = "c", # center column alignment
+      caption = "Table 1: Purple and red urchin statistics for population samples collected along the Santa Barbara coast") %>% 
+  kable_paper() # changed table style
+```
+
+## Overall takeaways from the statystical analysis
+
+When comparing the two species, the data shows that overall Red Urchins are larger, with a mean size of 6.78 (cm) and median size of 7.0 (cm). The Purple Urchins are smaller with a mean size of 4.47(cm) and a median size of 4.5(cm). Additionally, it is important to note that the Red Urchins have a larger standard deviation 1.89 (cm) compared to the Purple Urchins 1.18 (cm). The standard deviation values allow us to conclude that the Purple Urchins have a higher central tendency (smaller SD value), meaning the sample has less variation from the mean size. In non-stats jargon, we see less variation in size in the Purple Urchin population sample than we see in the Red Urchin population sample. 
 
