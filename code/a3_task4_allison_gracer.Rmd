@@ -1,0 +1,102 @@
+---
+title: "Task 4 - Naples Reef Purple Urchins (Gracer)"
+author: "Allison Gracer"
+date: "10/26/2021"
+output: 
+  html_document: 
+    toc: yes
+    theme: spacelab
+---
+
+## Overview
+
+**Data Citation:** Reed, D. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
+library(kableExtra)
+```
+
+## Setup
+
+```{r}
+# Attach packages
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
+library(kableExtra)
+```
+
+## Read in the data
+
+```{r}
+urchins <- read_csv(here("data", "urchins.csv")) %>% # read in data using here()
+  clean_names() # convert all column headers to lower snake case
+```
+
+## Wrangle the data
+
+```{r}
+purple_urchins_naples <- urchins %>% 
+  mutate(date = mdy(date)) %>% # convert date class to date
+  mutate(year = year(date)) %>%   # create a new column that only contains year
+  filter(common_name == "Purple Urchin",
+         year == "2010",
+         site == "NAPL")
+  
+```
+
+## Data visualization (exploratory)
+
+### Histogram
+
+```{r}
+ggplot(data = purple_urchins_naples, 
+       aes(x = size, fill = treatment)) + # create ggplot with size(cm) on x axis, differentiate fill based on treatment
+  scale_fill_manual(values = c("paleturquoise3", "darkseagreen")) + # customize fill color
+  scale_color_manual(values = c("paleturquoise4", "darkseagreen4")) + # customize outline color
+  geom_histogram(bins = 12) + # specify ggplot type for histogram and customize bin size
+  facet_wrap(~treatment) + # wrap data into 2 panels based on treatment
+  labs( x = "Size (cm)") # customize graph labels
+```
+
+
+### QQ-plot
+
+```{r}
+ggplot(data = purple_urchins_naples, aes(sample = size)) + # create ggplot, specify data frame
+  geom_qq() + # specify plot type as qq-plot
+  facet_wrap(~treatment) # wrap data into 2 panels based on treatment
+```
+
+### Main takeaways
+
+The histograms look like they may indicate a normal distribution for both treatment groups, but it is slightly unclear to me. However, after seeing the Q-Q plots both treatment groups appear to have a clear linear relationship. These exploratory graphs lead me to conclude that both treatment groups are normally distributed. 
+
+## Descriptive statistics table
+
+```{r}
+purple_urchins_naples_stats <- purple_urchins_naples %>% # create a new data frame
+  group_by(treatment) %>% # group data by treatment 
+  summarize(
+    mean = round(mean(size),2), # calculate mean, and round to 2 decimal places
+    median = median(size), # calculate median
+    sd = round(sd(size),2), # calculate standard deviation, and round to 2 decimal places
+    sample_size = n()) # calculate sample size
+```
+
+## Finalized summary table
+
+```{r}
+kable(purple_urchins_naples_stats, # create simple table for rmarkdown with function kable()
+      col.names = c("Treatment", "Mean(cm)", "Median(cm)", "Standard Deviation (cm)", "Sample Size(n)"), # specify column names
+      align = "c", # center column alignment
+      caption = "Table 1: Purple urchin size (cm) statistics for samples collected at Naples Reef in 2010") %>% 
+  kable_paper() # changed table style
+```
+

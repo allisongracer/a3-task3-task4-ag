@@ -5,9 +5,12 @@ date: "10/25/2021"
 output: 
   html_document: 
     theme: spacelab
+    toc: yes
 ---
 
 ## Overview
+
+In this report Section 1 first compares sizes (cm) of purple and red sea urchins from data collected from 5 sites along the Santa Barbara Coast. Statistical analyses were run on this data and conclusions are discussed. Section 2 looks at the total number of observations of purple urchins by site by year. 
 
 **Data Citation:** Reed, D. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b. 
 
@@ -17,6 +20,7 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(kableExtra)
+library(lubridate)
 ```
 
 ## Setup
@@ -27,6 +31,7 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(kableExtra)
+library(lubridate)
 ```
 
 ## Read in the data
@@ -36,47 +41,100 @@ urchins <- read_csv(here("data", "urchins.csv")) %>% # read in data using here()
   clean_names() # convert all column headers to lower snake case
 ```
 
-## Data visualization
+## Section 1
 
-#### Size comparison of purple and red urchins (includes data from all sites and for both treatments)
+### Data Visualization: compare the distribution of sizes between purple and red sea urchins
 
-```{r fig.cap = "Figure 1. Comparing size of Purple and Red Urchins based on measurements of urchin diameter (cm), measured to the nearest 0.5 cm."}
-ggplot(data = urchins, aes(x = size)) + # create a ggplot using urchins data, with size on x axis
-  geom_histogram(fill = "sienna3", # specify plot type as histogram, and change graph colors and bin size
+###### To study trends in populations of sea urchins in the Santa Barbara Channel, we examine sample counts of urchins in each of five sites from 2008 to 2020.
+
+```{r fig.cap = "Figure 1. Comparing size distribution of purple and red urchins from five sites in the Santa Barbara Channel based on measurements of urchin diameter (cm), measured to the nearest 0.5 cm."}
+ggplot(data = urchins, aes(x = size)) + # create a ggplot using urchins data, with size(cm) on x axis
+  geom_histogram(fill = "sienna3", # specify plot type as histogram, change graph colors, and bin size
                  color = "sienna4",
                  bins = 10) +
   facet_wrap(~ common_name) + # facet data based on common_name
   labs(x = "Urchin Diameter (cm)", # label x axis
-       y = "Count of Urchins in Sample", # label y axis
+       y = "Number of Urchins in Sample", # label y axis
        title = "Purple and Red Urchin Size(cm)") + # create a plot title
   theme(plot.title = element_text(hjust = 0.5)) # center plot title
+  
 ```
 
-## Descriptive statistics table
+### Descriptive statistics table: mean, median, standard deviation, and sample size of urchin size(cm)
 
-#### Calculate mean, median, standard deviation, and sample size of urchin size (cm)
+###### Calculating mean, median, and standard deviation of urchin size(cm) to estimate the distribution of size between the two species. 
+
 
 ```{r}
 urchins_stats <- urchins %>% # create a new data set called urchins_stats
   group_by(common_name) %>% # grouped by species (common_name)
   summarize(
-    mean = round(mean(size),2), # calculate mean, and round to 2 decimal places
+    mean = round(mean(size),1), # calculate mean, and round to 2 decimal places
     median = median(size), # calculate median
-    sd = round(sd(size),2), # calculate standard deviation, and round to 2 decimal places
+    sd = round(sd(size),1), # calculate standard deviation, and round to 2 decimal places
     sample_size = n()) # calculate sample size
 ```
 
-#### Finalized summary table of urchin size statistics
+### Finalized summary table of statystical analysis (quantitative)
 
 ```{r}
 kable(urchins_stats, # create simple table for rmarkdown with function kable()
-      col.names = c("Common Name", "Mean(cm)", "Median(cm)", "Standard Deviation (cm)", "Sample Size"), # specify column names
+      col.names = c("Common Name", "Mean(cm)", "Median(cm)", "Standard Deviation (cm)", "Sample Size(n)"), # specify column names
       align = "c", # center column alignment
-      caption = "Table 1: Purple and red urchin statistics for population samples collected along the Santa Barbara coast") %>% 
+      caption = "Table 1: Purple and red urchin size (cm) statistics for population samples collected along the Santa Barbara coast") %>% 
   kable_paper() # changed table style
 ```
 
-## Overall takeaways from the statystical analysis
+### Overall takeaways from the statystical analysis (qualitative)
 
-When comparing the two species, the data shows that overall Red Urchins are larger, with a mean size of 6.78 (cm) and median size of 7.0 (cm). The Purple Urchins are smaller with a mean size of 4.47(cm) and a median size of 4.5(cm). Additionally, it is important to note that the Red Urchins have a larger standard deviation 1.89 (cm) compared to the Purple Urchins 1.18 (cm). The standard deviation values allow us to conclude that the Purple Urchins have a higher central tendency (smaller SD value), meaning the sample has less variation from the mean size. In non-stats jargon, we see less variation in size in the Purple Urchin population sample than we see in the Red Urchin population sample. 
+When comparing the two species, the data shows that overall red urchins are larger, with a mean size of 6.8 (cm) and median size of 7.0 (cm). The purple urchins are smaller with a mean size of 4.5(cm) and a median size of 4.5(cm).The difference in means between the two populations is 2.3(cm) and the percent difference is 66%. Additionally, it is important to note that the red urchins have a larger standard deviation 1.9 (cm) compared to the purple urchins 1.2 (cm). The standard deviation values allow us to conclude that the purple urchins have a higher central tendency (smaller SD value). This means the purple urchin sample has less variation from the mean size than the red urchin sample. 
+
+
+## Section 2
+
+### Data wrangling: exploring purple urchins by site and year
+
+```{r}
+purple_urchins <- urchins %>% # create a new data from called purple_urchins
+  filter(common_name == "Purple Urchin") %>% #only include observations for Purple Urchins
+  mutate(date = mdy(date)) %>% # convert date class to date
+  mutate(year = year(date)) %>% # create a new column that only contains year
+  mutate(site_full = case_when( #create a new column called site_full that contains full name for the 5 sites
+    site %in% "NAPL" ~ "Naples Reef",
+    site %in% "MOHK" ~ "Mohawk Reef",
+    site %in% "CARP" ~ "Carpinteria Reef",
+    site %in% "IVEE" ~ "Isla Vista Reef",
+    site %in% "AQUE" ~ "Arroyo Quemado Reef"))
+```
+
+### Create a table: total number of purple urchins observed by site and year
+
+```{r}
+purple_urchins_site_year <- purple_urchins %>% # create new data frame to filter as needed for table
+  group_by(site_full, year) %>%  # group data by site and year
+  select(site_full, year) %>%  # select only site and year
+  summarize(total_count = n())  # create new column with sum of counts per site per year
+```
+
+### Data visualization: counts of purple urchins by site and year
+
+
+```{r fig.cap = "Figure 2. Total sample size (n) of purple urchins from five sites in the Santa Barbara Channel collected from 2008 to 2020."}
+ggplot(data = purple_urchins_site_year, aes(x = year, y = total_count)) + # create a ggplot and assign axis
+  geom_line(aes(color = site_full)) + # create a line graph, differentiating site names by color
+  scale_x_continuous(breaks = 2008:2020) + # adjust the scale of my x-axis
+  scale_y_continuous(breaks = c(250, 500, 750, 1000, 1250)) +
+  scale_color_discrete(name = "Site") + # change legend title
+  labs(x = "Year", # name x-axis label
+     y = "Sample Size (n)", # name y-axis label
+     title = "Purple Urchin Sample Size By Site Per Year", # add a plot title
+     legend) +
+  theme(plot.title = element_text(hjust = 0.5)) + # center plot title
+  theme_light()
+ 
+```
+
+
+This graph may not be an accurate representation of changes in the purple urchin population. The data was collected from a combination of treatment areas. In the control group giant kelp species were left intact. In the annual group giant kelp was "removed...once each winter and allowed to re-colonize over the course of a year". This could lead to inaccurate representation of the overall population of purple urchins in ecosystems where there are not annual removals of giant kelp species. This graph combines all observations and does not take into account how many observations came from controlled vs. annual treatment sites. I would also have to know if there were issues such as time or funding restraints that resulted in fewer observations as the study progressed over time. The major drop off in samples taken from 2019-2020 could also be due to the Covid-19 pandemic forcing data collection to come to an abrupt stop.
+
 
