@@ -39,15 +39,15 @@ urchins <- read_csv(here("data", "urchins.csv")) %>% # read in data using here()
   clean_names() # convert all column headers to lower snake case
 ```
 
-## Wrangle the data
+## Data wrangling: Naples Reef observations for purple urchins observed in 2010
 
 ```{r}
 purple_urchins_naples <- urchins %>% 
   mutate(date = mdy(date)) %>% # convert date class to date
   mutate(year = year(date)) %>%   # create a new column that only contains year
-  filter(common_name == "Purple Urchin",
-         year == "2010",
-         site == "NAPL")
+  filter(common_name == "Purple Urchin", # filter data frame to contain data only for purple urchins
+         year == "2010", # filter data frame to contain data only for 2010
+         site == "NAPL") # filter data frame to contain data only for NAPL (Naples Reef)
   
 ```
 
@@ -76,9 +76,9 @@ ggplot(data = purple_urchins_naples, aes(sample = size)) + # create ggplot, spec
 
 ### Main takeaways
 
-The histograms look like they may indicate a normal distribution for both treatment groups, but it is slightly unclear to me. However, after seeing the Q-Q plots both treatment groups appear to have a clear linear relationship. These exploratory graphs lead me to conclude that both treatment groups are normally distributed. 
+Both the histograms and Q-Q plots appear to indicate a normal distribution for both treatment groups. Both treatment groups appear to have a clear linear relationship. These exploratory graphs lead me to conclude that both treatment groups, annual and control, are normally distributed. 
 
-## Descriptive statistics table
+## Descriptive statistics table: mean, median, standard deviation, and sample size of purple urchins
 
 ```{r}
 purple_urchins_naples_stats <- purple_urchins_naples %>% # create a new data frame
@@ -90,7 +90,7 @@ purple_urchins_naples_stats <- purple_urchins_naples %>% # create a new data fra
     sample_size = n()) # calculate sample size
 ```
 
-## Finalized summary table
+## Finalized summary table of statistical analysis (quantitative)
 
 ```{r}
 kable(purple_urchins_naples_stats, # create simple table for rmarkdown with function kable()

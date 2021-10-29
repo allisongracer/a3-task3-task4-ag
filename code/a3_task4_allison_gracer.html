@@ -178,15 +178,15 @@ pre code {
 <li><a href="#overview">Overview</a></li>
 <li><a href="#setup">Setup</a></li>
 <li><a href="#read-in-the-data">Read in the data</a></li>
-<li><a href="#wrangle-the-data">Wrangle the data</a></li>
+<li><a href="#data-wrangling-naples-reef-observations-for-purple-urchins-observed-in-2010">Data wrangling: Naples Reef observations for purple urchins observed in 2010</a></li>
 <li><a href="#data-visualization-exploratory">Data visualization (exploratory)</a>
 <ul>
 <li><a href="#histogram">Histogram</a></li>
 <li><a href="#qq-plot">QQ-plot</a></li>
 <li><a href="#main-takeaways">Main takeaways</a></li>
 </ul></li>
-<li><a href="#descriptive-statistics-table">Descriptive statistics table</a></li>
-<li><a href="#finalized-summary-table">Finalized summary table</a></li>
+<li><a href="#descriptive-statistics-table-mean-median-standard-deviation-and-sample-size-of-purple-urchins">Descriptive statistics table: mean, median, standard deviation, and sample size of purple urchins</a></li>
+<li><a href="#finalized-summary-table-of-statistical-analysis-quantitative">Finalized summary table of statistical analysis (quantitative)</a></li>
 </ul>
 </div>
 
@@ -208,14 +208,14 @@ library(kableExtra)</code></pre>
 <pre class="r"><code>urchins &lt;- read_csv(here(&quot;data&quot;, &quot;urchins.csv&quot;)) %&gt;% # read in data using here()
   clean_names() # convert all column headers to lower snake case</code></pre>
 </div>
-<div id="wrangle-the-data" class="section level2">
-<h2>Wrangle the data</h2>
+<div id="data-wrangling-naples-reef-observations-for-purple-urchins-observed-in-2010" class="section level2">
+<h2>Data wrangling: Naples Reef observations for purple urchins observed in 2010</h2>
 <pre class="r"><code>purple_urchins_naples &lt;- urchins %&gt;% 
   mutate(date = mdy(date)) %&gt;% # convert date class to date
   mutate(year = year(date)) %&gt;%   # create a new column that only contains year
-  filter(common_name == &quot;Purple Urchin&quot;,
-         year == &quot;2010&quot;,
-         site == &quot;NAPL&quot;)</code></pre>
+  filter(common_name == &quot;Purple Urchin&quot;, # filter data frame to contain data only for purple urchins
+         year == &quot;2010&quot;, # filter data frame to contain data only for 2010
+         site == &quot;NAPL&quot;) # filter data frame to contain data only for NAPL (Naples Reef)</code></pre>
 </div>
 <div id="data-visualization-exploratory" class="section level2">
 <h2>Data visualization (exploratory)</h2>
@@ -239,10 +239,11 @@ library(kableExtra)</code></pre>
 </div>
 <div id="main-takeaways" class="section level3">
 <h3>Main takeaways</h3>
+<p>Both the histograms and Q-Q plots appear to indicate a normal distribution for both treatment groups. Both treatment groups appear to have a clear linear relationship. These exploratory graphs lead me to conclude that both treatment groups, annual and control, are normally distributed.</p>
 </div>
 </div>
-<div id="descriptive-statistics-table" class="section level2">
-<h2>Descriptive statistics table</h2>
+<div id="descriptive-statistics-table-mean-median-standard-deviation-and-sample-size-of-purple-urchins" class="section level2">
+<h2>Descriptive statistics table: mean, median, standard deviation, and sample size of purple urchins</h2>
 <pre class="r"><code>purple_urchins_naples_stats &lt;- purple_urchins_naples %&gt;% # create a new data frame
   group_by(treatment) %&gt;% # group data by treatment 
   summarize(
@@ -251,10 +252,10 @@ library(kableExtra)</code></pre>
     sd = round(sd(size),2), # calculate standard deviation, and round to 2 decimal places
     sample_size = n()) # calculate sample size</code></pre>
 </div>
-<div id="finalized-summary-table" class="section level2">
-<h2>Finalized summary table</h2>
+<div id="finalized-summary-table-of-statistical-analysis-quantitative" class="section level2">
+<h2>Finalized summary table of statistical analysis (quantitative)</h2>
 <pre class="r"><code>kable(purple_urchins_naples_stats, # create simple table for rmarkdown with function kable()
-      col.names = c(&quot;Treatment&quot;, &quot;Mean(cm)&quot;, &quot;Median(cm)&quot;, &quot;Standard Deviation (cm)&quot;, &quot;Sample Size&quot;), # specify column names
+      col.names = c(&quot;Treatment&quot;, &quot;Mean(cm)&quot;, &quot;Median(cm)&quot;, &quot;Standard Deviation (cm)&quot;, &quot;Sample Size(n)&quot;), # specify column names
       align = &quot;c&quot;, # center column alignment
       caption = &quot;Table 1: Purple urchin size (cm) statistics for samples collected at Naples Reef in 2010&quot;) %&gt;% 
   kable_paper() # changed table style</code></pre>
@@ -277,7 +278,7 @@ Median(cm)
 Standard Deviation (cm)
 </th>
 <th style="text-align:center;">
-Sample Size
+Sample Size(n)
 </th>
 </tr>
 </thead>
